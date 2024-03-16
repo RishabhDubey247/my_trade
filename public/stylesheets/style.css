@@ -1,0 +1,32 @@
+body {
+  padding: 20px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-color: cadetblue !important;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.crypto-list  {
+  list-style: none;
+}
+.ticker-item {
+  display: flex;
+  justify-content: space-around;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 2px solid black;
+  padding: 4px 12px;
+  align-items: center;
+  flex-grow: 0;
+  background-color: currentColor;
+  margin: 2px;
+  border-radius: 15px;
+}
+
+.ticker-item p {
+  color: white !important;
+  font-size: x-small;
+  font-weight: 600;
+}

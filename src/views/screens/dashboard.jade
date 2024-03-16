@@ -1,0 +1,199 @@
+extends ../components/navbar
+link (rel="stylesheet" type="text/css" href="https://static.tradingview.com/static/bundles/embed/9363.8ccc954cb0aae148da39.css" referrerpolicy="no-referrer")
+
+block content
+    .row
+        .col-md-3
+            .card(style="height:100vh; margin-top: 80px; overflow: auto")
+                .card-body(class="sidebar")
+                    each list, index in data
+                        .ticker-item(onclick="getDeatils('#{list.symbol}')")
+                            img(src="https://s2.coinmarketcap.com/static/img/coins/64x64/"+list.type_id+".png", style="width: 30px;height: 30px;")
+                            p.m-2 #{list.name} (#{list.symbol}) 
+                            p.m-2.px-3(id='current_price' + index, class="current_price", style="color: #b39352 !important;")
+
+        .col-md-6
+            .card(style="height:50vh; margin-top: 80px;")
+                .card-body 
+                    div.tradingview-widget-container(style="height:100%;width:100%")
+                        div.tradingview-widget-container__widget(style="height:calc(100% - 32px);width:100%")
+                        div.tradingview-widget-copyright
+                            a(href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank")
+                            span.blue-text Track all markets on TradingView
+
+            .row
+                .col-md-6 
+                    .card(style="height:50vh; margin-top: 10px;")
+                        .card-body 
+                            p(style="font-weight: 300;font-size: small; margin: -9px 6px -4px;")#orderbookName
+                            .row 
+                                .col-md-6
+                                    table.table
+                                        thead
+                                            tr 
+                                                th(style="font-weight: 300;font-size: small;") VOLUMNE
+                                                th(style="font-weight: 300;font-size: small;") Bid
+                                        tbody#bid 
+
+                                .col-md-6 
+                                     table.table
+                                        thead
+                                            tr 
+                                                th(style="font-weight: 300;font-size: small;") Ask
+                                                th(style="font-weight: 300;font-size: small;") VOLUMNE
+                                        tbody#ask
+
+                .col-md-6
+                    .card(style="height:50vh; margin-top: 10px;")
+                        .card-body 
+                            p(style="font-weight: 300;font-size: small; margin: -9px 6px -4px;")#tradeHistroyname 
+                            .row 
+                                table.table
+                                    thead
+                                        tr 
+                                            th(style="font-weight: 300;font-size: small;") VOLUMNE
+                                            th(style="font-weight: 300;font-size: small;") PRICE
+                                            th(style="font-weight: 300;font-size: small;") TIME
+                                    tbody#tradeHistroy
+
+        .col-md-3
+            .card(style="height:50vh; margin-top: 80px;")
+                p(style="text-align: center;margin: 10px;font-size: larger;font-weight: bold;") Fear and Gread index
+                .card-body(style="display: flex; justify-content: center; align-items: center;")
+                    div(style="text-align: center;")
+                        -console.log(fgi)
+                        h1#valueDisplay(style="font-size: 60px;")= fgi.now.value
+                        p(style="text-align: center;margin: 10px;font-size: larger;font-weight: bold;") Sentimant - #{fgi.now.valueText}
+                         table.table
+                                    thead
+                                        
+                                        tr 
+                                            th(style="font-weight: 300;font-size: small;") Time
+                                            th(style="font-weight: 300;font-size: small;") Value
+                                            th(style="font-weight: 300;font-size: small;") Sentimant
+                                     tbody
+                                        each key in Object.keys(fgi)
+                                            tr 
+                                                td(style="font-weight: 300;font-size: small;")= key
+                                                td(style="font-weight: 300;font-size: small;")= fgi[key].value
+                                                td(style="font-weight: 300;font-size: small;")= fgi[key].valueText
+                                        
+            .card(style="height:50vh; margin-top: 10px;")
+                .card-body
+                    
+                    h1(style="font-size:large") this is order card
+    .card(style="height:100vh; margin-top: 10px; overflow: auto")
+            .card-body
+                h1 test
+    script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js")
+    script.
+        $(document).ready(function() {
+            getDeatils("BTC");
+            appendTradeHistory('btc')
+        });
+        const symbol = !{JSON.stringify(data)};
+        for (let i = 0; i < symbol.length; i++) {
+            let lastUpdateTime = 0; 
+            const elementid = "current_price" + i;
+            const tokenName = symbol[i].symbol;
+            const socketData = new WebSocket(`wss://stream.binance.com:9443/ws/${tokenName.toLowerCase()}usdt@aggTrade`);
+            socketData.onmessage = (event) => {
+                const currentTime = Date.now();
+                if (currentTime - lastUpdateTime < 2000) {
+                    return; 
+                }
+                lastUpdateTime = currentTime;
+                const price = document.getElementById(elementid);
+                const data = JSON.parse(event.data);
+                price.textContent = parseFloat(data.p).toFixed(6);
+            };
+        }
+
+        function getDeatils(data) {
+            let lastUpdateTime = 0; 
+            const name = document.getElementById('orderbookName')
+            name.textContent = data.toUpperCase() + " Orderbook"
+            const symbol = data.toLowerCase();
+            appendTradeHistory(symbol)
+            const orderSocket = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}usdt@depth@100ms`);
+            orderSocket.onmessage = (event) => {
+                const currentTime = Date.now();
+                if (currentTime - lastUpdateTime < 2000) {
+                    return; 
+                }
+                lastUpdateTime = currentTime;
+                const data = JSON.parse(event.data);
+                const bidData = data.b;
+                const askData = data.a;
+                const bidTableBody = document.getElementById("bid");
+                const askTableBody = document.getElementById("ask");
+
+                function appendBidRow(i) {
+                    const newRow = document.createElement('tr'); // Create a new row
+                    newRow.innerHTML = `<td style="font-weight: 300;font-size: small;">${parseFloat(bidData[i][0]).toFixed(3)}</td><td style="font-weight: 300;font-size: small;">${parseFloat(bidData[i][1]).toFixed(3)}</td>`; 
+                    if (bidTableBody.children.length >= 9) {
+                        bidTableBody.removeChild(bidTableBody.children[0]); 
+                    }
+                    bidTableBody.appendChild(newRow); 
+                }
+
+                // Append bid data to table
+                for(let i = 0; i < bidData.length; i++) {
+                    appendBidRow(i);
+                }
+
+                function appendAskRow(i) {
+                    const newRow = document.createElement('tr'); // Create a new row
+                    newRow.innerHTML = `<td style="font-weight: 300;font-size: small;">${parseFloat(askData[i][1]).toFixed(3)}</td><td style="font-weight: 300;font-size: small;">${parseFloat(askData[i][0]).toFixed(3)}</td>`; 
+                    if (askTableBody.children.length >= 9) {
+                        askTableBody.removeChild(askTableBody.children[0]); 
+                    }
+                    askTableBody.appendChild(newRow); 
+                }
+
+                //append ask data to table
+                for (let i = 0; i < askData.length; i++) {
+                    appendAskRow(i)
+                }
+            };
+        }
+        
+        function appendTradeHistory(data){
+            let lastUpdateTime = 0;
+            const name = document.getElementById('tradeHistroyname')
+            name.textContent = data.toUpperCase() + " Trade History"
+            const tradinghistorySocket = new WebSocket(`wss://stream.binance.com:9443/ws/${data}usdt@trade`)
+            tradinghistorySocket.onmessage = (event) => {
+                const currentTime = Date.now();
+                if (currentTime - lastUpdateTime < 2000) {
+                    return; 
+                }
+                lastUpdateTime = currentTime;
+                const data = JSON.parse(event.data);
+                const time = data.E;
+                const price = data.p;
+                const vol = data.q; 
+                const date = new Date(time); 
+                let dateString = date.toLocaleString();
+                dateString = dateString.split(",")[1];
+                const historyTableBody = document.getElementById("tradeHistroy");
+                const newRow = document.createElement('tr'); 
+                newRow.innerHTML = `<td style="font-weight: 300;font-size: small;">${parseFloat(vol).toFixed(3)}</td><td style="font-weight: 300;font-size: small;">${parseFloat(price).toFixed(3)}</td><td style="font-weight: 300;font-size: small;">${dateString}</td>`; 
+                if (historyTableBody.children.length >= 9) {
+                        historyTableBody.removeChild(historyTableBody.children[0]); 
+                }
+                historyTableBody.appendChild(newRow); 
+            }
+        }
+        const value = parseInt('#{fgi.value}');
+        const valueDisplay = document.getElementById('valueDisplay');
+        if (value < 30) {
+            valueDisplay.style.color = 'darkgreen';
+        } else if (value < 50) {
+            valueDisplay.style.color = 'green';
+        } else if (value >= 50 && value <= 70) {
+            valueDisplay.style.color = 'lightgrey'; // Adjust this color as per your requirement
+        } else {
+            valueDisplay.style.color = 'darkred';
+        }
+        

@@ -1,0 +1,44 @@
+extend ../layout 
+block content 
+    container.d-flex.align-items-center.justify-content-center(style="min-height: 100vh")
+        .card
+            .card-body
+                -if (typeof(message) !== 'undefined' && message.length > 0){
+                    div.alert.alert-success=message
+                -}else {
+                    div.alert.alert-danger=error
+                -}
+                form(id="registrationForm", method="post", action="/signup", novalidate)
+                    .form-group
+                        label(for="name") Name:
+                        input.form-control(type="text", id="name", name="name", required)
+
+                    .form-group
+                        label(for="mobile") Mobile No:
+                        input.form-control(type="tel", id="mobile", name="phone_no", pattern="[0-9]{10}", required)
+
+                    .form-group
+                        label(for="email") Email:
+                        input.form-control(type="email", id="email", name="email", required)
+
+                    .form-group
+                        label(for="password") Password:
+                        input.form-control(type="password", id="password", name="password", pattern=".{6,}", required)
+                        small.text-muted Password must be at least 6 characters long.
+
+                    button.btn.btn-primary(type="submit") Register
+    block script 
+    script.
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+            var form = document.getElementById('registrationForm');
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+            }, false);
+        })();

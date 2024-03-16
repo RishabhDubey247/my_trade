@@ -1,0 +1,47 @@
+extend ../layout 
+block content 
+  .container.d-flex.align-items-center.justify-content-center(style="min-height: 100vh")
+    .card
+        .card-body
+            -if (typeof(message) !== 'undefined' && message.length > 0){
+                div.alert.alert-success=message
+            -}else {
+                div.alert.alert-danger=error
+            -}
+            form(method="POST")
+                //- Email input
+                .form-outline.mb-4
+                    input(type="email", name="email", id="form2Example1", class="form-control")
+                    label.form-label(for="form2Example1") Email address
+
+                //- Password input
+                .form-outline.mb-4
+                    input(type="password", name="password", id="form2Example2", class="form-control")
+                    label.form-label(for="form2Example2") Password
+
+                //- 2 column grid layout for inline styling
+                .row.mb-4
+                    .col.d-flex.justify-content-center
+                        .form-check
+                            input.form-check-input(type="checkbox", value="", id="form2Example31", checked)
+                            label.form-check-label(for="form2Example31")  Remember me
+
+                    .col
+                        a(href="") Forgot password?
+
+                //- Submit button
+                button.btn.btn-primary.btn-block.mb-4(type="submit") Sign in
+
+                //- Register buttons
+                .text-center
+                    p Not a member? 
+                        a(href="/signup") Register
+                    //- p or sign up with:
+                    //- button.btn.btn-link.btn-floating.mx-1(type="button")
+                    //-     i.fab.fa-facebook-f
+                    //- button.btn.btn-link.btn-floating.mx-1(type="button")
+                    //-     i.fab.fa-google
+                    //- button.btn.btn-link.btn-floating.mx-1(type="button")
+                    //-     i.fab.fa-twitter
+                    //- button.btn.btn-link.btn-floating.mx-1(type="button")
+                    //-     i.fab.fa-github
