@@ -14,12 +14,27 @@ block content
 
         .col-md-6
             .card(style="height:50vh; margin-top: 80px;")
-                .card-body 
-                    div.tradingview-widget-container(style="height:100%;width:100%")
-                        div.tradingview-widget-container__widget(style="height:calc(100% - 32px);width:100%")
-                        div.tradingview-widget-copyright
+                .card-body#chart
+                   .tradingview-widget-container(style="height:100%;width:100%")
+                        .tradingview-widget-container__widget(style="height:calc(100% - 32px);width:100%")
+                        .tradingview-widget-copyright
                             a(href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank")
                             span.blue-text Track all markets on TradingView
+                        script(type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async).
+                            {
+                            "autosize": true,
+                            "symbol": "BTCUSD",
+                            "interval": "D",
+                            "timezone": "Etc/UTC",
+                            "theme": "dark",
+                            "style": "1",
+                            "locale": "en",
+                            "enable_publishing": false,
+                            "allow_symbol_change": true,
+                            "calendar": false,
+                            "support_host": "https://www.tradingview.com"
+                            }
+
 
             .row
                 .col-md-6 
@@ -61,7 +76,6 @@ block content
                 p(style="text-align: center;margin: 10px;font-size: larger;font-weight: bold;") Fear and Gread index
                 .card-body(style="display: flex; justify-content: center; align-items: center;")
                     div(style="text-align: center;")
-                        -console.log(fgi)
                         h1#valueDisplay(style="font-size: 60px;")= fgi.now.value
                         p(style="text-align: center;margin: 10px;font-size: larger;font-weight: bold;") Sentimant - #{fgi.now.valueText}
                          table.table
@@ -79,9 +93,20 @@ block content
                                                 td(style="font-weight: 300;font-size: small;")= fgi[key].valueText
                                         
             .card(style="height:50vh; margin-top: 10px;")
-                .card-body
-                    
-                    h1(style="font-size:large") this is order card
+                p(style="text-align: center;margin: 10px;font-size: larger;font-weight: bold;") Long Short Ratio
+                    .card-body(style="display: flex; justify-content: center; align-items: center;")
+                        div(style="text-align: center;")
+                            - console.log(longshortration)
+                            h1#valueDisplay(style="font-size: 60px;")=longshortration.longShortRatio
+                            p(style="text-align: center;margin: 10px;font-size: larger;font-weight: bold;") #{longshortration.symbol}
+                            //- table.table
+                            //-             thead
+                                            
+                            //-                 tr 
+                            //-                     th(style="font-weight: 300;font-size: small;") Time
+                            //-                     th(style="font-weight: 300;font-size: small;") Value
+                            //-                     th(style="font-weight: 300;font-size: small;") Sentimant
+                            //-             tbody
     .card(style="height:100vh; margin-top: 10px; overflow: auto")
             .card-body
                 h1 test
@@ -90,6 +115,7 @@ block content
         $(document).ready(function() {
             getDeatils("BTC");
             appendTradeHistory('btc')
+            appendChart('btc')
         });
         const symbol = !{JSON.stringify(data)};
         for (let i = 0; i < symbol.length; i++) {
@@ -197,3 +223,33 @@ block content
             valueDisplay.style.color = 'darkred';
         }
         
+        //- function appendChart(data) {
+        //-     console.log(data);
+        //-     const chartContainer = document.getElementById('chart');
+        //-     const newRow = document.createElement('div'); 
+        //-     console.log(chartContainer);
+        //-     newRow.innerHTML = `<div class="tradingview-widget-container" style="height:100%;width:100%">
+        //-         <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
+        //-         <div class="tradingview-widget-copyright">
+        //-             <a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank">
+        //-                 <span class="blue-text">Track all markets on TradingView</span>
+        //-             </a>
+        //-         </div>
+        //-         <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+        //-         {
+        //-             "autosize": true,
+        //-             "symbol": "${data.toUpperCase()}:USD",
+        //-             "interval": "D",
+        //-             "timezone": "Etc/UTC",
+        //-             "theme": "dark",
+        //-             "style": "1",
+        //-             "locale": "en",
+        //-             "enable_publishing": false,
+        //-             "allow_symbol_change": true,
+        //-             "calendar": false,
+        //-             "support_host": "https://www.tradingview.com"
+        //-         }
+        //-         </script>
+        //-     </div>`;
+        //-     chartContainer.appendChild(newRow)
+        //- }
