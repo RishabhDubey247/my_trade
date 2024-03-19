@@ -28,13 +28,12 @@ const dashboard = async (req, res, next) => {
             }
         
     });
-    console.log(fandG.data.fgi.now)
-    res.render('screens/dashboard', {titel : "Dashboard", data , fgi : fandG.data.fgi})
+
+    const longshortration = await axios.get("https://fapi.binance.com/futures/data/topLongShortPositionRatio?symbol=BTCUSDT&period=1d&limit=1");
+
+
+    res.render('screens/dashboard', {titel : "Dashboard", data , fgi : fandG.data.fgi, longshortration : longshortration.data[0]})
     
 };
 
-const getCurrentPrice = async function (token_type_id){
-
-    return CurrentPrice;
-}
 module.exports = {dashboard};
